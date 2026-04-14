@@ -1,0 +1,14 @@
+import numpy as np
+from typing import Any
+
+class Sequential:
+    def __init__(self, *modules) -> None:
+        self.modules = [*modules]
+
+    def __call__(self, X:np.ndarray, *args: Any, **kwds: Any) -> Any:
+        return self.forward(X)
+
+    def forward(self, X:np.ndarray) -> np.ndarray:
+        for m in self.modules:
+            o = m(X)
+        return o
