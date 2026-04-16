@@ -7,7 +7,8 @@ from aif.utils.sequential import Sequential
 class LinearModel:
     def __init__(self, in_features:int, out_features:int, bias:bool) -> None:
         self.modules = Sequential(
-            Linear(in_features, out_features, bias)
+            Linear(in_features, out_features, bias),
+            Sigmoid()
         )
     
     def forward(self, X:np.ndarray) -> np.ndarray:

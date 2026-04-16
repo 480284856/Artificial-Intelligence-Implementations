@@ -30,5 +30,7 @@ class Sigmoid(Module):
         return self.Y
     
     def backward(self, delta):
-        # TODO: implement it after forward propagation
+        """
+        \partial sigmoid(x) / \partial x = sigmoid(x) * (1-sigmoid(x))
+        """
         pass
