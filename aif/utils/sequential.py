@@ -10,5 +10,6 @@ class Sequential:
 
     def forward(self, X:np.ndarray) -> np.ndarray:
         for m in self.modules:
-            o = m(X)
+            X = m(X)
+        o=X
         return o
