@@ -1,6 +1,6 @@
-from turtle import forward
 import numpy as np
 from .utils.module import Module
+from .utils.functional import softmax
 
 class BinaryEntropyLoss(Module):
     def __init__(self):
@@ -10,21 +10,25 @@ class BinaryEntropyLoss(Module):
         """
         H(p,q) = -p(x)*log q(x)
 
-        p: shape: [bs, category] | real distribution
-        q: shape: [bs,] | predicted distribution
+        p: shape: [bs,] | real distribution
+        q: shape: [bs, category] | predicted distribution, should be logits instead of probabilities.
         """
-        assert len(q.shape) == 1
-        tmp = np.zeros_like(p)
-        tmp[:, q] = 1
-        q = tmp
+        assert len(p.shape) == 2 and p.shape[-1] == 1
+        assert len(q.shape) == 2
+        
+        tmp = np.zeros_like(q)
+        row_index = np.arange(tmp.shape[0]).reshape(-1,1)
+        tmp[row_index, p] = 1
+        p = tmp
 
-        loss = -p*np.log(q)
-        loss:np.ndarray = loss.sum(axis=-1)
-        loss = loss.mean()
+        q = softmax(q)
 
-        return loss
+        tmp = -p*np.log(q)
+        loss:np.ndarray = tmp.sum(axis=-1)
+        loss_mean = loss.mean()
+
+        return loss_mean
     
     def backward(self, delta: np.ndarray):
         # do it tomorrow
         pass
-
