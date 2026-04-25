@@ -4,7 +4,7 @@ from typing import Any
 class Module:
     def __init__(self):
         pass
-    def forward(self, X:np.ndarray):
+    def forward(self, X:np.ndarray) -> np.ndarray: # type: ignore
         pass
     def backward(self, delta:np.ndarray):
         pass

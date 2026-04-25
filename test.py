@@ -15,3 +15,4 @@ if __name__ == "__main__":
     ])
     loss_mean = loss_module.forward(p=p,q=q)
     print(loss_mean)
+    print(loss_mean.backward())

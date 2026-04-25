@@ -6,7 +6,16 @@ class BinaryEntropyLoss(Module):
     def __init__(self):
         super().__init__()
     
-    def forward(self, p:np.ndarray, q:np.ndarray):
+    def __str__(self) -> str:
+        try:
+            return str(self.loss_mean)
+        except:
+            return ""
+
+    def __call__(self, p:np.ndarray, q:np.ndarray):
+        return self.forward(p,q)
+
+    def forward(self, p:np.ndarray, q:np.ndarray):  # type: ignore
         """
         H(p,q) = -p(x)*log q(x)
 
@@ -16,19 +25,34 @@ class BinaryEntropyLoss(Module):
         assert len(p.shape) == 2 and p.shape[-1] == 1
         assert len(q.shape) == 2
         
+        # backup for backward
+        self._label = p
+        self._row_index = np.arange(p.shape[0]).reshape(-1,1)
         tmp = np.zeros_like(q)
-        row_index = np.arange(tmp.shape[0]).reshape(-1,1)
-        tmp[row_index, p] = 1
-        p = tmp
+        tmp[self._row_index, p] = 1
+        self._onehot_label = tmp
+        self._prob = softmax(q)
 
-        q = softmax(q)
-
-        tmp = -p*np.log(q)
+        tmp = -1 * self._onehot_label*np.log(self._prob)
         loss:np.ndarray = tmp.sum(axis=-1)
-        loss_mean = loss.mean()
+        self.loss_mean = loss.mean()
 
-        return loss_mean
+        return self
     
-    def backward(self, delta: np.ndarray):
-        # do it tomorrow
-        pass
+    def backward(self,): # type: ignore
+        """
+        \\frac{ \\partial L}{ \\partial z }  = 
+            p_i - y_i, if p_i is the probability of real class
+            p_i * y_i, others
+        In engineering, both cases can be processed as: p-y, where y is the one hot vector.
+        [
+            [0.7 -1, 0.1 -0, 0.1 -0, 0.1 -0],
+            [0.1 -0, 0.7 -1, 0.1 -0, 0.1 -0],
+        ]
+        """
+
+        # self._prob[self._row_index, self._label] -= 1
+        # delta = self._prob
+        # self._prob: [bs, category]
+        delta = self._prob - self._onehot_label
+        return delta
