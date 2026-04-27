@@ -10,13 +10,17 @@ class ReLU(Module):
         """
     
     def forward(self, X:np.ndarray) -> np.ndarray:
-        return np.maximum(
-            x1=X,
-            x2=0
-        )
+        self.mask = X<=0
+        X=X.copy()
+        X[self.mask] = 0
+        return X
     
     def backward(self, delta:np.ndarray) -> np.ndarray:
-        pass
+
+        # delta: [bs, feature dim]
+        delta=delta.copy()
+        delta[self.mask] = 0
+        return delta
 
 class Sigmoid(Module):
     def __init__(self):
@@ -33,4 +37,6 @@ class Sigmoid(Module):
         """
         \partial sigmoid(x) / \partial x = sigmoid(x) * (1-sigmoid(x))
         """
-        pass
+        delta=delta.copy()
+        result=delta*(1-delta)
+        return result
