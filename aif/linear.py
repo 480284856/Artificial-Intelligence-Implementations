@@ -20,5 +20,11 @@ class Linear(Module):
         :param delta: $delta=\\frac{ \partial L }{ \partial Z_{L+1} }$
         :type delta: np.ndarray
         """
-        # TODO: implement it after finishing forward propagation
-        pass
+        # gradient
+        
+
+        
+        # delta: [bs, out_features]
+        # W: [in_features, out_features]
+        delta = delta @ self.W.T
+        return delta
