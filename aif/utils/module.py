@@ -10,3 +10,8 @@ class Module:
         pass
     def __call__(self, X:np.ndarray, *args: Any, **kwds: Any) -> Any:
         return self.forward(X)
+
+class Parameter:
+    def __init__(self, value: np.ndarray):
+        self.value = value
+        self.grad = None
