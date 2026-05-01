@@ -15,3 +15,14 @@ class Parameter:
     def __init__(self, value: np.ndarray):
         self.value = value
         self.grad = None
+
+class Optimizer:
+    def __init__(self, 
+        learning_rate: float,
+        params: list[Module]
+    ):
+        self.learning_rate = learning_rate
+        self.params = params
+
+    def step(self):
+        pass
