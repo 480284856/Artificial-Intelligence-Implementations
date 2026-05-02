@@ -2,12 +2,12 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: Current File (ml)",
+      "name": "Python: Current File (aif)",
       "type": "debugpy",
       "request": "launch",
       "program": "${file}",
       "console": "integratedTerminal",
-      "python": "/Users/jay/miniconda3/envs/ml/bin/python",
+      "python": "/Users/jay/miniconda3/envs/aif/bin/python",
       "cwd": "${workspaceFolder}",
       "env": {
         "PYTHONPATH": "${workspaceFolder}${pathSeparator}${env:PYTHONPATH}"

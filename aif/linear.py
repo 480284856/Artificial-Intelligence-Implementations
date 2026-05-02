@@ -34,7 +34,7 @@ class Linear(Module):
         self.W.grad = self.X.T @ delta
         # 对于偏置的求导来说，它就等于那一层的 delta 乘以输入（也就是 1），其实也就是 delta。因为又是批量的（batch size 大于 1），所以会有多个 delta，最后取平均。
         assert len(delta.shape)==2, "对偏置求导的假设是基于：第一个维度是批大小维度，第二个维度则是特征维度，也就是神经元的个数的维度"
-        self.B.grad = delta.sum(dim=0)
+        self.B.grad = delta.sum(axis=0)
 
-        delta = delta @ self.W.T
+        delta = delta @ self.W.value.T
         return delta

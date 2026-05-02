@@ -13,3 +13,8 @@ class Sequential:
             X = m(X)
         o=X
         return o
+    
+    def backward(self, delta:np.ndarray) -> np.ndarray:
+        for m in reversed(self.modules):
+            delta = m.backward(delta)
+        return delta

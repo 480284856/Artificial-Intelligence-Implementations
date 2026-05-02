@@ -2,7 +2,7 @@ import numpy as np
 from .utils.module import Module
 from .utils.functional import softmax
 
-class BinaryEntropyLoss(Module):
+class CrossEntropyLoss(Module):
     def __init__(self):
         super().__init__()
     
@@ -19,7 +19,7 @@ class BinaryEntropyLoss(Module):
         """
         H(p,q) = -p(x)*log q(x)
 
-        p: shape: [bs,] | real distribution
+        p: shape: [bs,1] | real distribution
         q: shape: [bs, category] | predicted distribution, should be logits instead of probabilities.
         """
         assert len(p.shape) == 2 and p.shape[-1] == 1
