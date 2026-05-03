@@ -4,3 +4,5 @@ from .loss import CrossEntropyLoss
 
 from .utils.functional import * 
 from .utils.sequential import Sequential
+
+from .optimizers import SGD

@@ -1,8 +1,9 @@
 import numpy as np
-from .utils.module import Module, Parameter
+from .utils.module import TrainableModule, Parameter
 
-class Linear(Module):
+class Linear(TrainableModule):
     def __init__(self, in_features: int, out_features:int, bias:bool=True, *args, **kwargs):
+        super().__init__()
         self.in_features = in_features
         self.out_features = out_features
         self.set_bias = bias
@@ -10,10 +11,7 @@ class Linear(Module):
         self.W = Parameter(np.random.randn(self.in_features, self.out_features))
         self.B = Parameter(np.random.randn(self.out_features) if self.set_bias else np.zeros(1))
 
-        self.parameters = dict(
-            W=self.W,
-            B=self.B
-        )
+        self._parameters = [self.W, self.B]
 
     def forward(self, X: np.ndarray):
         self.X=X
