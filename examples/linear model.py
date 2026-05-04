@@ -29,10 +29,10 @@ class LinearModel(Model):
         return self.activation(self.forward(X))
 
 if __name__ == "__main__":
-    model = LinearModel(2,2, hidden_features=10)
+    model = LinearModel(2,2, hidden_features=100)
     loss_module = CrossEntropyLoss()
     optimizer = SGD(
-        learning_rate=0.01,
+        learning_rate=0.0001,
         params=model.parameters
     )
 

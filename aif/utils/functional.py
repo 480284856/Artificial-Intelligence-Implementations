@@ -6,5 +6,6 @@ def softmax(X:np.ndarray):
     """
     assert len(X.shape) == 2
 
+    X = X - np.max(X, axis=-1, keepdims=True)
     tmp = np.exp(X)
     return tmp/np.sum(tmp, axis=-1,keepdims=True)

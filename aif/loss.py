@@ -33,7 +33,10 @@ class CrossEntropyLoss(Module):
         self._onehot_label = tmp
         self._prob = softmax(q)
 
-        tmp = -1 * self._onehot_label*np.log(self._prob)
+        tmp = q-q.max(axis=-1,keepdims=True)
+        log_prob = tmp - np.log(np.sum(np.exp(tmp), axis=-1,keepdims=True))
+
+        tmp = -1 * self._onehot_label*log_prob
         loss:np.ndarray = tmp.sum(axis=-1)
         self.loss_mean = loss.mean()
 
