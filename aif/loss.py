@@ -59,3 +59,36 @@ class CrossEntropyLoss(Module):
         # self._prob: [bs, category]
         delta = self._prob - self._onehot_label
         return delta
+
+class MSELoss(Module):
+    def __init__(self):
+        super().__init__()
+    
+    def __str__(self) -> str:
+        try:
+            return str(self.loss_mean)
+        except:
+            return ""
+
+    def __call__(self, p:np.ndarray, q:np.ndarray):
+        return self.forward(p,q)
+
+    def forward(self, p:np.ndarray, q:np.ndarray):  # type: ignore
+        """
+        MSE = (p-q)^2
+
+        p: shape: [bs,1] | real distribution
+        q: shape: [bs,1] | predicted distribution
+        """
+        assert len(p.shape) == 2 and p.shape[-1] == 1
+        assert len(q.shape) == 2 and q.shape[-1] == 1
+
+        self._label = p
+        self._q = q
+        self._loss = ((p-q)**2).sum()
+        self.loss_mean = self._loss.mean()
+        return self
+    
+    def backward(self,):
+        delta = -2*(self._label-self._q) / self._label.shape[0]
+        return delta

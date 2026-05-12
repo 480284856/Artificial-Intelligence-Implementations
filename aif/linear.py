@@ -8,8 +8,8 @@ class Linear(TrainableModule):
         self.out_features = out_features
         self.set_bias = bias
 
-        self.W = Parameter(np.random.randn(self.in_features, self.out_features))
-        self.B = Parameter(np.random.randn(self.out_features) if self.set_bias else np.zeros(1))
+        self.W = Parameter(np.random.randn(self.in_features, self.out_features)*1e-1)
+        self.B = Parameter(np.random.randn(self.out_features)*1e-1 if self.set_bias else np.zeros(1))
 
         self._parameters = [self.W, self.B]
 
