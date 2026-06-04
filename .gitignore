@@ -1,6 +1,7 @@
-__pycache__/
-*.py[cod]
-*$py.class
+**/__pycache__/
+.vscode/
 .venv/
 .ipynb_checkpoints/
 aif.egg-info/
+**/.DS_Store
+**/dataset
