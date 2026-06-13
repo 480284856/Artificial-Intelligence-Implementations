@@ -19,6 +19,7 @@ class BatchNorm(Module):
     
     def backward(self, delta: np.ndarray):
         if self.train:
+            # written by gemini
             bs = delta.shape[0]
             # Standard batch normalization backward formula
             dX = (1.0 / (bs * self.std)) * (
