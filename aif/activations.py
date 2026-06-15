@@ -38,5 +38,5 @@ class Sigmoid(Module):
         \partial sigmoid(x) / \partial x = sigmoid(x) * (1-sigmoid(x))
         """
         delta=delta.copy()
-        result=delta*(1-delta)
+        result=delta * self.Y * (1 - self.Y)
         return result
