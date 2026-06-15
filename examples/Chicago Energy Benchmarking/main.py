@@ -26,6 +26,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from aif.linear import Linear
+from aif.normalizations import BatchNorm
 from aif.activations import ReLU,Sigmoid
 from aif.utils.sequential import Sequential
 from aif.loss import MSELoss
@@ -34,19 +35,19 @@ from aif.optimizers import SGD
 from aif.dropout import Dropout
 
 FEATURE_COLS = [
-    "Gross Floor Area - Buildings (sq ft)",
-    "Year Built",
-    "# of Buildings",
-    "Electricity Use (kBtu)",
-    "Natural Gas Use (kBtu)",
-    "Site EUI (kBtu/sq ft)",
-    "Source EUI (kBtu/sq ft)",
-    "Weather Normalized Site EUI (kBtu/sq ft)",
-    "Weather Normalized Source EUI (kBtu/sq ft)",
-    "Total GHG Emissions (Metric Tons CO2e)",
-    "GHG Intensity (kg CO2e/sq ft)",
+    "gross_floor_area_buildings_sq_ft",
+    "year_built",
+    "of_buildings",
+    "electricity_use_kbtu",
+    "natural_gas_use_kbtu",
+    "site_eui_kbtu_sq_ft",
+    "source_eui_kbtu_sq_ft",
+    "weather_normalized_site_eui_kbtu_sq_ft",
+    "weather_normalized_source_eui_kbtu_sq_ft",
+    "total_ghg_emissions_metric_tons_co2e",
+    "ghg_intensity_kg_co2e_sq_ft",
 ]
-TARGET_COL = "Total GHG Emissions (Metric Tons CO2e)"
+TARGET_COL = "total_ghg_emissions_metric_tons_co2e"
 
 
 def load_chicago_energy(data_dir: str = "dataset"):
@@ -69,9 +70,11 @@ class LinearModel(Model):
         super().__init__()
         self.model = Sequential(
             Linear(in_features, hidden_features, bias),
+            BatchNorm(),
             ReLU(),
+            Dropout(0.3),
             Linear(hidden_features, hidden_features, bias),
-            # Dropout(0.1),
+            BatchNorm(),
             ReLU(),
             Linear(hidden_features, out_features, bias),
         )
@@ -118,8 +121,8 @@ def train(
 if __name__ == "__main__":
     X, Y = load_chicago_energy(data_dir="examples/Chicago Energy Benchmarking/dataset")
     bs = 10
-    lr = np.sqrt(bs)*0.01
-    # lr = 0.01 * bs
+    # lr = 0.001
+    lr = 0.001 * np.sqrt(bs)
     print(f"Batch size: {bs}, Learning rate: {lr}")
     model = LinearModel(X.shape[1],1, hidden_features=200)
     loss_module = MSELoss()
