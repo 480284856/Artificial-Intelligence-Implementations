@@ -19,7 +19,7 @@ class BatchNorm(Module):
     
     def backward(self, delta: np.ndarray):
         if self.train:
-            # written by gemini
+            # written by gemini(checked)
             bs = delta.shape[0]
             # Standard batch normalization backward formula
             dX = (1.0 / (bs * self.std)) * (
@@ -30,20 +30,6 @@ class BatchNorm(Module):
             return dX
         else:
             return delta / self.std
-    
-        if self.train:
-            bs = delta.shape[0]
-            # path I: L -> X
-            gradient1 = np.tile(-1/self.var, (bs, 1))
-            # path II: L -> mean(X) -> X
-            numerator = delta.sum(axis=0)
-            denominator = bs * self.var
-            gradient2 = numerator/denominator
-            gradient2 = np.tile(gradient2, (bs,1))
-            # path III: L -> Std(X) -> X
-            gradient3 = -1*delta.sum(axis=0)/self.var**2 * (self.X - self.mean)/(bs*self.var)
-            gradient = gradient1+gradient2+gradient3
-            return gradient
 
 if __name__ == "__main__":
     X = np.array([
