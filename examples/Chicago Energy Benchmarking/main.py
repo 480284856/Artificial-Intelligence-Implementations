@@ -37,15 +37,15 @@ from aif.dropout import Dropout
 FEATURE_COLS = [
     "gross_floor_area_buildings_sq_ft",
     "year_built",
-    "of_buildings",
-    "electricity_use_kbtu",
-    "natural_gas_use_kbtu",
-    "site_eui_kbtu_sq_ft",
-    "source_eui_kbtu_sq_ft",
-    "weather_normalized_site_eui_kbtu_sq_ft",
-    "weather_normalized_source_eui_kbtu_sq_ft",
-    "total_ghg_emissions_metric_tons_co2e",
-    "ghg_intensity_kg_co2e_sq_ft",
+    # "of_buildings",
+    # # "electricity_use_kbtu",
+    # "natural_gas_use_kbtu",
+    # "site_eui_kbtu_sq_ft",
+    # "source_eui_kbtu_sq_ft",
+    # "weather_normalized_site_eui_kbtu_sq_ft",
+    # "weather_normalized_source_eui_kbtu_sq_ft",
+    # "total_ghg_emissions_metric_tons_co2e",
+    # "ghg_intensity_kg_co2e_sq_ft",
 ]
 TARGET_COL = "total_ghg_emissions_metric_tons_co2e"
 
@@ -70,12 +70,11 @@ class LinearModel(Model):
         super().__init__()
         self.model = Sequential(
             Linear(in_features, hidden_features, bias),
-            BatchNorm(),
             ReLU(),
-            Dropout(0.3),
-            Linear(hidden_features, hidden_features, bias),
-            BatchNorm(),
-            ReLU(),
+            # Dropout(0.3),
+            BatchNorm(hidden_features),
+            # Linear(hidden_features, hidden_features, bias),
+            # ReLU(),
             Linear(hidden_features, out_features, bias),
         )
         self.activation = Sigmoid()
@@ -93,8 +92,8 @@ class LinearModel(Model):
 
 def train(
     model:Model, 
-    X,
-    Y,
+    X_train,
+    Y_train,
     loss_func,
     optimizer,
     epochs:int=1000,
@@ -103,9 +102,9 @@ def train(
     loss_list = []
     for epoch in range(epochs):
         loss_epoch = 0
-        for i in range(0, X.shape[0], bs):
-            x = X.values[i:i+bs]
-            y = Y.values.reshape(-1,1)[i:i+bs]
+        for i in range(0, X_train.shape[0], bs):
+            x = X_train.values[i:i+bs]
+            y = Y_train.values.reshape(-1,1)[i:i+bs]
 
             logits = model.forward(x)
             loss = loss_func(p=y, q=logits)
@@ -114,17 +113,31 @@ def train(
             delta = loss.backward()
             model.backward(delta)
             optimizer.step()
-        loss_list.append(loss_epoch/X.shape[0])
-        print(f"Epoch {epoch:>3}  loss: {loss_epoch/X.shape[0]:.4f}")
+        loss_list.append(loss_epoch/X_train.shape[0])
+        print(f"Epoch {epoch:>3}  loss: {loss_epoch/X_train.shape[0]:.4f}")
     return loss_list
 
 if __name__ == "__main__":
     X, Y = load_chicago_energy(data_dir="examples/Chicago Energy Benchmarking/dataset")
+    
+    # Split the dataset into train and test sets (80% train, 20% test)
+    np.random.seed(42)
+    indices = np.arange(len(X))
+    np.random.shuffle(indices)
+    split_idx = int(0.8 * len(X))
+    train_indices = indices[:split_idx]
+    test_indices = indices[split_idx:]
+    
+    X_train = X.iloc[train_indices]
+    Y_train = Y.iloc[train_indices]
+    X_test = X.iloc[test_indices]
+    Y_test = Y.iloc[test_indices]
+    
     bs = 10
     # lr = 0.001
-    lr = 0.001 * np.sqrt(bs)
+    lr = 0.01 * np.sqrt(bs)
     print(f"Batch size: {bs}, Learning rate: {lr}")
-    model = LinearModel(X.shape[1],1, hidden_features=200)
+    model = LinearModel(X_train.shape[1],1, hidden_features=100)
     loss_module = MSELoss()
     optimizer = SGD(
         learning_rate=lr,
@@ -133,13 +146,23 @@ if __name__ == "__main__":
 
     loss_list = train(
         model,
-        X,
-        Y,
+        X_train,
+        Y_train,
         loss_module,
         optimizer,
         epochs=100,
         bs=bs,
     )
+    
+    # Evaluate R2 score on the test set
+    y_pred = model.forward(X_test.values).flatten()
+    y_true = Y_test.values
+    
+    ss_res = np.sum((y_true - y_pred) ** 2)
+    ss_tot = np.sum((y_true - np.mean(y_true)) ** 2)
+    r2 = 1 - (ss_res / ss_tot)
+    print(f"Test set R2 score: {r2:.4f}")
+    
     sns.lineplot(x=range(len(loss_list)), y=loss_list)
     plt.show()
 
