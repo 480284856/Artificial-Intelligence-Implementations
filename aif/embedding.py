@@ -47,11 +47,19 @@ class PositionalEmbedding(Module):
     def forward(self, X: np.ndarray):
         """
         X: token embeddings
-           shape: (seq_len, d_model) or (batch_size, seq_len, d_model)
+           shape: (batch_size, seq_len, d_model)
         """
-        ...
+        shape = X.shape
+
+        batch_size, seq_len, d_model = shape
+        if self.pe is None or self.d_model != d_model or self.max_len < seq_len:
+            self.d_model = d_model
+            self.max_len = max(self.max_len, seq_len)
+            self._precompute_pe()
+        return X + self.pe[np.newaxis, :seq_len]
+
     def backward(self, delta: np.ndarray):
         """
         For X_out = X_in + PE, the gradient with respect to X_in is delta.
         """
-        ...
+        return delta
