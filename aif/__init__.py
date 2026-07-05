@@ -6,3 +6,5 @@ from .utils.functional import *
 from .utils.sequential import Sequential
 
 from .optimizers import SGD
+
+from .attention import Attention
