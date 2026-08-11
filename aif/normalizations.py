@@ -2,14 +2,20 @@ import numpy as np
 from .utils.module import TrainableModule, Parameter
 
 class BatchNorm(TrainableModule):
-    def __init__(self, num_features, eps=1e-5, train=True, momentum: float = 0.9,):
+    def __init__(self, num_features, eps=1e-5, train=True, momentum: float = 0.9, affine: bool = True):
         super().__init__()
         self.eps = eps
         self.train = train
+        self.affine = affine
 
-        self.gamma = Parameter(np.ones((1, num_features)))
-        self.beta = Parameter(np.zeros((1, num_features)))
-        self._parameters = [self.gamma, self.beta]
+        if affine:
+            self.gamma = Parameter(np.ones((1, num_features)))
+            self.beta = Parameter(np.zeros((1, num_features)))
+            self._parameters = [self.gamma, self.beta]
+        else:
+            self.gamma = None
+            self.beta = None
+            self._parameters = []
 
         self.running_mean = np.zeros((1, num_features))
         self.running_var = np.ones_like(self.running_mean)
@@ -28,20 +34,28 @@ class BatchNorm(TrainableModule):
         else:
             self.std = np.sqrt(self.running_var + self.eps)
             self.X_hat = (X - self.running_mean) / self.std
-        return self.gamma.value * self.X_hat + self.beta.value
+        return self.gamma.value * self.X_hat + self.beta.value if self.affine else self.X_hat
     
     def backward(self, delta: np.ndarray):
         if self.train:
-            self.gamma.grad = np.sum(delta * self.X_hat, axis=0, keepdims=True)
-            self.beta.grad = np.sum(delta, axis=0, keepdims=True)
+            if self.affine:
+                self.gamma.grad = np.sum(delta * self.X_hat, axis=0, keepdims=True)
+                self.beta.grad = np.sum(delta, axis=0, keepdims=True)
             
             bs = delta.shape[0]
             # Standard batch normalization backward formula
-            dX = (self.gamma.value / (bs * self.std)) * (
-                bs * delta 
-                - np.sum(delta, axis=0, keepdims=True) 
-                - self.X_hat * np.sum(delta * self.X_hat, axis=0, keepdims=True)
-            )
+            if self.affine:
+                dX = (self.gamma.value / (bs * self.std)) * (
+                    bs * delta 
+                    - np.sum(delta, axis=0, keepdims=True) 
+                    - self.X_hat * np.sum(delta * self.X_hat, axis=0, keepdims=True)
+                )
+            else:
+                dX = (1 / (bs * self.std)) * (
+                    bs * delta 
+                    - np.sum(delta, axis=0, keepdims=True) 
+                    - self.X_hat * np.sum(delta * self.X_hat, axis=0, keepdims=True)
+                )
             return dX
         else:
             return (delta * self.gamma.value) / self.std
