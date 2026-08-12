@@ -60,6 +60,39 @@ class BatchNorm(TrainableModule):
         else:
             return (delta * self.gamma.value) / self.std
 
+class LayerNorm2D(TrainableModule):
+    def __init__(self, num_features, eps=1e-5, train=True, affine: bool = True):
+        super().__init__()
+        self.eps = eps
+        self.train = train
+        self.affine = affine
+
+        if affine:
+            self.gamma = Parameter(np.ones((1, num_features)))
+            self.beta = Parameter(np.zeros((1, num_features)))
+            self._parameters = [self.gamma, self.beta]
+        else:
+            self.gamma = None
+            self.beta = None
+            self._parameters = []
+            
+    def forward(self, X: np.ndarray):
+        self.X = X
+        mean = X.mean(axis=1, keepdims=True)
+        self.std = X.var(axis=1, keepdims=True)
+        self.std = np.sqrt(self.std + self.eps)
+        self.X_hat = (X - mean) / self.std
+        return self.gamma.value * self.X_hat + self.beta.value if self.affine else self.X_hat
+
+    
+    def backward(self, delta: np.ndarray):
+        if self.train:
+            if self.affine:
+                self.gamma.grad = np.sum(delta * self.X_hat, axis=0, keepdims=True)
+                self.beta.grad = np.sum(delta, axis=0, keepdims=True)
+            
+            bs = delta.shape[0]
+            
 if __name__ == "__main__":
     X = np.array([
         [1,2,3],
