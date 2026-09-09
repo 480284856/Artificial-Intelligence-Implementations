@@ -25,14 +25,14 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from aif.linear import Linear
-from aif.normalizations import BatchNorm
-from aif.activations import ReLU,Sigmoid
-from aif.utils.sequential import Sequential
-from aif.loss import MSELoss
-from aif.utils.module import Model
-from aif.optimizers import SGD
-from aif.dropout import Dropout
+from aif.nn.linear import Linear
+from aif.nn.normalizations import BatchNorm
+from aif.nn.activations import ReLU,Sigmoid
+from aif.nn.utils.sequential import Sequential
+from aif.nn.loss import MSELoss
+from aif.nn.utils.module import Model
+from aif.nn.optimizers import SGD
+from aif.nn.dropout import Dropout
 
 FEATURE_COLS = [
     "gross_floor_area_buildings_sq_ft",
@@ -72,7 +72,8 @@ class LinearModel(Model):
             Linear(in_features, hidden_features, bias),
             ReLU(),
             # Dropout(0.3),
-            BatchNorm(hidden_features),
+            BatchNorm(hidden_features, affine=False),
+            # Sigmoid(),
             # Linear(hidden_features, hidden_features, bias),
             # ReLU(),
             Linear(hidden_features, out_features, bias),
