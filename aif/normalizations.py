@@ -91,7 +91,13 @@ class LayerNorm2D(TrainableModule):
                 self.gamma.grad = np.sum(delta * self.X_hat, axis=0, keepdims=True)
                 self.beta.grad = np.sum(delta, axis=0, keepdims=True)
             
-            bs = delta.shape[0]
+                L2O = delta
+                O2Z = self.gamma.value
+
+                L2X = 1/self.std * \
+                      (L2O * O2Z - \
+                      (L2O * O2Z).mean(axis=1,keepdims=True) - self.X_hat * (L2O*O2Z*self.X_hat).mean(axis=1, keepdims=True))
+                return L2X
             
 if __name__ == "__main__":
     X = np.array([
