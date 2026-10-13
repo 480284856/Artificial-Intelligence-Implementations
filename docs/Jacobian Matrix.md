@@ -51,4 +51,11 @@ For example, changing only $x_1$ by 0.1 gives output changes (0.2, -0.1): the fi
 When it comes to vectors, the change means the change of vector when input is changed slightly, which is represented by the movement of a point in geometry:
 https://jacobian-changes.groovy-fig-8378.chatgpt.site
 
+When x1 is changed slightly, it will cause a change of the vector $\begin{pmatrix}\Delta y_1\\\Delta y_2\end{pmatrix}_{x1}$, and also for x2: $\begin{pmatrix}\Delta y_1\\\Delta y_2\end{pmatrix}_{x2}$, so the total change is: $\begin{pmatrix}\Delta y_1\\\Delta y_2\end{pmatrix}_{x1}+\begin{pmatrix}\Delta y_1\\\Delta y_2\end{pmatrix}_{x2}$
+
+![[Jacobian_matrix-1.png|700]]
+
 > represent: to act on behalf of someone, stand as a symbol or sign for something.
+
+
+https://chatgpt.com/c/6acdb850-c9c4-83ed-b88a-7d9d7e8f1368
